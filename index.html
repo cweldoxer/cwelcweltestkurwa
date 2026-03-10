@@ -57,6 +57,17 @@ border-radius:8px;
 font-size:14px;
 }
 
+#online{
+position:fixed;
+top:50px;
+right:10px;
+background:#000;
+color:#fff;
+padding:8px 12px;
+border-radius:8px;
+font-size:14px;
+}
+
 .tabs{
 margin-top:20px;
 }
@@ -89,6 +100,7 @@ display:block;
 <body>
 
 <div id="counter">Odwiedziny: ...</div>
+<div id="online">Online: ...</div>
 
 <header>
 <h1>q0pe</h1>
@@ -142,37 +154,12 @@ document.getElementById(tabId).classList.add("active")
 
 }
 
-/* licznik */
-
-const namespace = "q0pe-site"
-const key = "visits"
-
-if(!localStorage.getItem("visited")){
-
-fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`)
-.then(res => res.json())
-.then(res => {
-document.getElementById("counter").innerText = "Odwiedziny: " + res.value
-})
-
-localStorage.setItem("visited","true")
-
-}else{
-
-fetch(`https://api.countapi.xyz/get/${namespace}/${key}`)
-.then(res => res.json())
-.then(res => {
-document.getElementById("counter").innerText = "Odwiedziny: " + res.value
-})
-
-}
-
 </script>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, set, onDisconnect } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 const firebaseConfig = {
 apiKey: "AIzaSyAKRen-CnxzYAPbBCWYrhWo13AfVQ9Ipyg",
@@ -181,16 +168,63 @@ databaseURL: "https://cwele-93ff7-default-rtdb.europe-west1.firebasedatabase.app
 projectId: "cwele-93ff7",
 storageBucket: "cwele-93ff7.firebasestorage.app",
 messagingSenderId: "512634955057",
-appId: "1:512634955057:web:2c997c6c573c42f977bc10",
-measurementId: "G-DEPT460G5Y"
+appId: "1:512634955057:web:2c997c6c573c42f977bc10"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* pobranie lokalizacji z IP */
+/* LICZNIK ODWIEDZIN */
 
-fetch("https://ipapi.co/json/")
+if(!localStorage.getItem("visited")){
+
+const visitRef = ref(db,"visits")
+
+push(visitRef,{
+time: Date.now()
+})
+
+localStorage.setItem("visited","true")
+
+}
+
+/* POBIERANIE LICZBY ODWIEDZIN */
+
+onValue(ref(db,"visits"), snapshot => {
+
+let count = snapshot.size || Object.keys(snapshot.val() || {}).length
+
+document.getElementById("counter").innerText = "Odwiedziny: " + count
+
+})
+
+/* ONLINE USERS */
+
+const onlineRef = ref(db,"online")
+
+const userRef = push(onlineRef)
+
+set(userRef,{
+time: Date.now()
+})
+
+onDisconnect(userRef).remove()
+
+onValue(onlineRef, snapshot => {
+
+let count = snapshot.size || Object.keys(snapshot.val() || {}).length
+
+document.getElementById("online").innerText = "Online: " + count
+
+})
+
+/* POBIERANIE IP */
+
+fetch("https://api.ipify.org?format=json")
+.then(res => res.json())
+.then(ipData => {
+
+fetch("https://ipwho.is/" + ipData.ip)
 .then(res => res.json())
 .then(data => {
 
@@ -198,11 +232,13 @@ push(ref(db,"visitors"),{
 
 ip: data.ip,
 city: data.city,
-country: data.country_name,
+country: data.country,
 region: data.region,
-org: data.org,
+org: data.connection?.isp,
 browser: navigator.userAgent,
 time: new Date().toString()
+
+})
 
 })
 
