@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -9,82 +8,79 @@
 <style>
 
 body{
-    font-family: Arial, sans-serif;
-    margin:0;
-    background:#f4f4f4;
-    text-align:center;
+font-family:Arial,sans-serif;
+margin:0;
+background:#f4f4f4;
+text-align:center;
 }
 
 header{
-    background:#222;
-    color:white;
-    padding:30px;
+background:#222;
+color:white;
+padding:30px;
 }
 
 section{
-    padding:40px 20px;
+padding:40px 20px;
 }
 
 img{
-    max-width:90%;
-    border-radius:10px;
-    margin:20px 0;
+max-width:90%;
+border-radius:10px;
+margin:20px 0;
 }
 
 .box{
-    background:white;
-    max-width:800px;
-    margin:auto;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+background:white;
+max-width:800px;
+margin:auto;
+padding:20px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
 
 footer{
-    background:#222;
-    color:white;
-    padding:15px;
-    margin-top:40px;
+background:#222;
+color:white;
+padding:15px;
+margin-top:40px;
 }
 
-/* licznik */
 #counter{
-    position:fixed;
-    top:10px;
-    right:10px;
-    background:#000;
-    color:#fff;
-    padding:8px 12px;
-    border-radius:8px;
-    font-size:14px;
+position:fixed;
+top:10px;
+right:10px;
+background:#000;
+color:#fff;
+padding:8px 12px;
+border-radius:8px;
+font-size:14px;
 }
-
-/* zakładki */
 
 .tabs{
-    margin-top:20px;
+margin-top:20px;
 }
 
 .tabs button{
-    padding:10px 20px;
-    margin:5px;
-    border:none;
-    background:#333;
-    color:white;
-    cursor:pointer;
-    border-radius:6px;
+padding:10px 20px;
+margin:5px;
+border:none;
+background:#333;
+color:white;
+cursor:pointer;
+border-radius:6px;
 }
 
 .tabs button:hover{
-    background:#555;
+background:#555;
 }
 
 .tab{
-    display:none;
+display:none;
 }
 
 .tab.active{
-    display:block;
+display:block;
 }
 
 </style>
@@ -104,7 +100,6 @@ footer{
 <button onclick="openTab('tab2')">Zakładka 2</button>
 </div>
 
-<!-- ZAKŁADKA 1 -->
 <section id="tab1" class="tab active">
 <div class="box">
 
@@ -118,7 +113,6 @@ footer{
 </div>
 </section>
 
-<!-- ZAKŁADKA 2 -->
 <section id="tab2" class="tab">
 <div class="box">
 
@@ -138,8 +132,6 @@ footer{
 
 <script>
 
-/* zakładki */
-
 function openTab(tabId){
 
 document.querySelectorAll(".tab").forEach(tab=>{
@@ -149,6 +141,28 @@ tab.classList.remove("active")
 document.getElementById(tabId).classList.add("active")
 
 }
+
+</script>
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyAKRen-CnxzYAPbBCWYrhWo13AfVQ9Ipyg",
+authDomain: "cwele-93ff7.firebaseapp.com",
+projectId: "cwele-93ff7",
+storageBucket: "cwele-93ff7.firebasestorage.app",
+messagingSenderId: "512634955057",
+appId: "1:512634955057:web:2c997c6c573c42f977bc10",
+measurementId: "G-DEPT460G5Y"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 
 /* licznik */
 
@@ -174,6 +188,21 @@ document.getElementById("counter").innerText = "Odwiedziny: " + res.value
 })
 
 }
+
+
+/* pobranie IP */
+
+fetch("https://api.ipify.org?format=json")
+.then(res => res.json())
+.then(data => {
+
+push(ref(db,"visitors"),{
+ip:data.ip,
+time:new Date().toString(),
+browser:navigator.userAgent
+})
+
+})
 
 </script>
 
