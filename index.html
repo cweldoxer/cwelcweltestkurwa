@@ -142,28 +142,6 @@ document.getElementById(tabId).classList.add("active")
 
 }
 
-</script>
-
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
-
-const firebaseConfig = {
-apiKey: "AIzaSyAKRen-CnxzYAPbBCWYrhWo13AfVQ9Ipyg",
-authDomain: "cwele-93ff7.firebaseapp.com",
-projectId: "cwele-93ff7",
-storageBucket: "cwele-93ff7.firebasestorage.app",
-messagingSenderId: "512634955057",
-appId: "1:512634955057:web:2c997c6c573c42f977bc10",
-measurementId: "G-DEPT460G5Y"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-
 /* licznik */
 
 const namespace = "q0pe-site"
@@ -189,17 +167,42 @@ document.getElementById("counter").innerText = "Odwiedziny: " + res.value
 
 }
 
+</script>
 
-/* pobranie IP */
+<script type="module">
 
-fetch("https://api.ipify.org?format=json")
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyAKRen-CnxzYAPbBCWYrhWo13AfVQ9Ipyg",
+authDomain: "cwele-93ff7.firebaseapp.com",
+projectId: "cwele-93ff7",
+storageBucket: "cwele-93ff7.firebasestorage.app",
+messagingSenderId: "512634955057",
+appId: "1:512634955057:web:2c997c6c573c42f977bc10",
+measurementId: "G-DEPT460G5Y"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* pobranie lokalizacji z IP */
+
+fetch("https://ipapi.co/json/")
 .then(res => res.json())
 .then(data => {
 
 push(ref(db,"visitors"),{
-ip:data.ip,
-time:new Date().toString(),
-browser:navigator.userAgent
+
+ip: data.ip,
+city: data.city,
+country: data.country_name,
+region: data.region,
+org: data.org,
+browser: navigator.userAgent,
+time: new Date().toString()
+
 })
 
 })
